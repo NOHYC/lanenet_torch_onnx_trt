@@ -1,8 +1,3 @@
-
-'''
-ENet [Reference: https://arxiv.org/pdf/1606.02147.pdf]
-'''
-
 import torch
 from torch.nn import init
 from torch import nn

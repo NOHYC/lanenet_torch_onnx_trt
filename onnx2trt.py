@@ -3,6 +3,7 @@ import argparse
 
 parsers = argparse.ArgumentParser(description = "onnx lanenet")
 parsers.add_argument("--onnx_dir",required=True, help = "need onnx lanenet_model")
+parsers.add_argument("--trt_dir",required=True, help = "need tensorRT engine")
 args = parsers.parse_args()
 
 onnx_file_name = args.onnx_dir
@@ -35,4 +36,4 @@ def ONNX_build_engine(onnx_file_path, engine_file_path):
         return engine
 
 if __name__ == "__main__":
-    ONNX_build_engine(onnx_file_name, './Lanenet7.trt')
+    ONNX_build_engine(onnx_file_name, args.trt_dir+'/Lanenet.trt')
