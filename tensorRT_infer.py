@@ -2,7 +2,6 @@ import time
 import os
 import torch
 from torchvision import transforms
-from model.utils.cli_helper_test import parse_args
 import numpy as np
 from PIL import Image
 import cv2
@@ -10,11 +9,18 @@ import pycuda.driver as cuda
 import pycuda.autoinit
 import tensorrt as trt
 import timeit
+import argparse
 
-engine_file = "Lanenet6.trt"
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--video", help="video path")
+    parser.add_argument("--model", help="Model path", default='./save/Lanenet.trt')
+    return parser.parse_args()
+
+
 TRT_LOGGER = trt.Logger()
 fourcc = cv2.VideoWriter_fourcc(*'DIVX')
-out = cv2.VideoWriter("v_out2.avi", fourcc, 30, (512,256))
+out = cv2.VideoWriter(args.video, fourcc, 30, (512,256))
 
 def load_engine(engine_file_path):
     assert os.path.exists(engine_file_path)
@@ -79,7 +85,7 @@ def engines_create(engine, input_file, image_height, image_width):
 
 def test():
     args = parse_args()
-    with load_engine(engine_file) as engine:
+    with load_engine(args.model) as engine:
         img_path = args.img
         if img_path is None:
             return False

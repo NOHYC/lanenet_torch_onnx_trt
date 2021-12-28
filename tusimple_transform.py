@@ -12,7 +12,7 @@ import numpy as np
 
 def init_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--src_dir', type=str, help='The origin path of unzipped tusimple dataset')
+    parser.add_argument('--data_set', type=str, help='The origin path of unzipped tusimple dataset')
     parser.add_argument('--val', type=bool, help='Tag for validation set', default=True)
     parser.add_argument('--test', type=bool, help='Tag for validation set', default=False)
 
@@ -239,4 +239,4 @@ def process_tusimple_dataset(src_dir, val_tag, test_tag):
 if __name__ == '__main__':
     args = init_args()
 
-    process_tusimple_dataset(args.src_dir, args.val, args.test)
+    process_tusimple_dataset(args.data_set, args.val, args.test)
