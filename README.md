@@ -102,6 +102,7 @@ hardware : RTX 2080Ti
 - TensorRT : 330 fps
 
 **recommend : use docker**
+
 example for docker 
 
-docker run -it --gpus all -d -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --ipc=host --name trt20.06 nvcr.io/nvidia/tensorrt:20.06-py3 /bin/bash
+docker run -it --gpus all -d -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --name trt20.06 nvcr.io/nvidia/tensorrt:20.06-py3 /bin/bash
