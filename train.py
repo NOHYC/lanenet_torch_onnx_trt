@@ -31,14 +31,14 @@ def parse_args():
 
 DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-def data_loader(data_type,data_set,resize_height,resize_width,batch):
+def data_loader(data_set,data_type,resize_height,resize_width,batch):
     
     dataset_file = os.path.join(data_set, data_type + ".txt")
-    transforms.Compose([transforms.Resize((resize_height, resize_width)),
+    data_trans = transforms.Compose([transforms.Resize((resize_height, resize_width)),
             transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])  ])
     target_transforms = transforms.Compose([Rescale((resize_width, resize_height))])
-    dataset = TusimpleSet(dataset_file, transform=transforms, target_transform=target_transforms)
+    dataset = TusimpleSet(dataset_file, transform=data_trans, target_transform=target_transforms)
     train_loader = DataLoader(dataset, batch_size=batch, shuffle=True)
     return train_loader
 

@@ -4,6 +4,7 @@ import numpy as np
 import time
 import copy
 from model.lanenet.loss import DiscriminativeLoss
+from tqdm import tqdm
 
 def compute_loss(net_output, binary_label, instance_label):
     k_binary = 10    
@@ -34,6 +35,7 @@ def train_model(model, optimizer, dataloaders, dataset_sizes, device, num_epochs
     best_loss = float("inf")
 
     best_model_wts = copy.deepcopy(model.state_dict())
+    
 
     for epoch in range(num_epochs):
         training_log['epoch'].append(epoch)
@@ -50,7 +52,7 @@ def train_model(model, optimizer, dataloaders, dataset_sizes, device, num_epochs
             running_loss = 0.0
             running_loss_b = 0.0
             running_loss_i = 0.0
-
+            progressbar = tqdm(range(len(dataloaders[phase])))
             # Iterate over data.
             for inputs, binarys, instances in dataloaders[phase]:
                 inputs = inputs.type(torch.FloatTensor).to(device)
@@ -75,8 +77,9 @@ def train_model(model, optimizer, dataloaders, dataset_sizes, device, num_epochs
                 running_loss += loss[0].item() * inputs.size(0)
                 running_loss_b += loss[1].item() * inputs.size(0)
                 running_loss_i += loss[2].item() * inputs.size(0)
-
-
+                progressbar.set_description("batch loss: {:.3f}".format(loss[0].item()))
+                progressbar.update(1)
+            progressbar.close()
             epoch_loss = running_loss / dataset_sizes[phase]
             binary_loss = running_loss_b / dataset_sizes[phase]
             instance_loss = running_loss_i / dataset_sizes[phase]
@@ -90,7 +93,9 @@ def train_model(model, optimizer, dataloaders, dataset_sizes, device, num_epochs
                 if epoch_loss < best_loss:
                     best_loss = epoch_loss
                     best_model_wts = copy.deepcopy(model.state_dict())
+
         print()
+    
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     print('Best val_loss: {:4f}'.format(best_loss))
