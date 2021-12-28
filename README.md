@@ -1,13 +1,17 @@
-# LANENET
+# LANENET 
 
 **paper**
+
 "LaneNet: Real-Time Lane Detection Networks for Autonomous Driving"
+
+
 [https://arxiv.org/abs/1807.01726]
 
 **segmentation model [ lane detection ]**
 - using pytorch, onnx, TensorRT
 
 ## DataSet : TUSimple
+
 dataset URL : [https://github.com/TuSimple/tusimple-benchmark/issues/3]
 - unzip train_set.zip
 
@@ -22,6 +26,7 @@ dataset URL : [https://github.com/TuSimple/tusimple-benchmark/issues/3]
 
 
 ## train Lanenet
+
 this python code remakes this github[https://github.com/IrohXu/lanenet-lane-detection-pytorch]
 - lanenet + backbone[ENET]
 
@@ -86,20 +91,33 @@ this python code remakes this github[https://github.com/IrohXu/lanenet-lane-dete
 ## inference result
 
 cuda 11.0
+
 pytorch 1.7.1
+
 torchaudio 0.7.2
+
 torchvision 0.8.2
+
 onnx 1.6.0
+
 pycuda 2019.1.2
+
 tensorrt 7.1.2.8
+
 tensorflow 1.15.5
+
 tensorflow-estimator 1.15.1
+
 tensorflow-gpu 1.15.5
 
+
 hardware : RTX 2080Ti
-- Pytorch : 60 fps
+
+- Pytorch : 66 fps
+
 - TensorRT : 330 fps
 
 **recommend : use docker**
 example for docker 
+
 docker run -it --gpus all -d -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --ipc=host --name trt20.06 nvcr.io/nvidia/tensorrt:20.06-py3 /bin/bash
