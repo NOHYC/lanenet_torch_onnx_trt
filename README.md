@@ -91,7 +91,10 @@ this python code remakes this github[https://github.com/IrohXu/lanenet-lane-dete
 ## inference result
 
 cuda 11.0
+
 --------------------------
+=======
+
 pytorch 1.7.1
 
 torchaudio 0.7.2
@@ -108,6 +111,8 @@ apt-get install libgl1-mesa-glx
 pip install scikit-image
 pip install pandas
 pip install tqdm
+
+=======
 
 onnx 1.6.0
 
