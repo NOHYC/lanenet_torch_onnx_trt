@@ -23,7 +23,12 @@ dataset URL : [https://github.com/TuSimple/tusimple-benchmark/issues/3]
 |----label_data_0601.json
 |----test_label.json
 ```
+## requirement ##
+- bash
 
+```shell
+ ./requirement.sh
+```
 
 ## train Lanenet
 
