@@ -32,7 +32,6 @@ dataset URL : [https://github.com/TuSimple/tusimple-benchmark/issues/3]
 
 ## train Lanenet
 
-this python code remakes this github[https://github.com/IrohXu/lanenet-lane-detection-pytorch]
 - lanenet + backbone[ENET]
 
 
