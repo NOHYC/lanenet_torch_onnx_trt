@@ -25,5 +25,5 @@ x = torch.randn(batch_size,3, 256, 512 ,requires_grad = True).cuda()
 
 torch_out = model(x)
 
-torch.onnx.export(model, x,args.trt_dir+"/Lanenet.onnx", export_params = True,
+torch.onnx.export(model, x,args.onnx_dir+"/Lanenet.onnx", export_params = True,
  opset_version = 9, input_names = ['input'], output_names = ['output1','output2','output3'])
