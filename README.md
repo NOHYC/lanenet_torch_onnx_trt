@@ -99,15 +99,19 @@ dataset URL : [https://github.com/TuSimple/tusimple-benchmark/issues/3]
 <img width="{100%}" src="https://user-images.githubusercontent.com/67589849/147845566-3577e219-feaa-450d-be32-b9a60d99c84f.gif"/>
 
 video = highway condiction
+
 real velocity = 90 km
+
 h = 256
+
 w = 512
 
+```shell
 cuda 11.0
 onnx 1.6.0
 pycuda 2019.1.2
 tensorrt 7.1.2.8
-
+```
 hardware : RTX 2080Ti
 
 - Pytorch : 66 fps
