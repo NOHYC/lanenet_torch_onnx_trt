@@ -94,6 +94,10 @@ dataset URL : [https://github.com/TuSimple/tusimple-benchmark/issues/3]
 
 ## inference result
 
+** inference result(video) **
+<img width="{100%}" src="{https://user-images.githubusercontent.com/67589849/147844154-5723fda3-78c1-4d5e-93fe-019dea39e361.gif}"/>
+
+
 cuda 11.0
 onnx 1.6.0
 pycuda 2019.1.2
