@@ -11,8 +11,7 @@ DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 class LaneNet(nn.Module):
     def __init__(self, in_ch = 3):
         super(LaneNet, self).__init__()
-        # no of instances for segmentation
-        self.no_of_instances = 3  # if you want to output RGB instance map, it should be 3.
+        self.no_of_instances = 3  
         self._encoder = ENet_Encoder(in_ch)
         self._encoder.to(DEVICE)
 

@@ -10,9 +10,14 @@
 **segmentation model [ lane detection ]**
 - using pytorch, onnx, TensorRT
 
+
+
 ## DataSet : TUSimple
 
 dataset URL : [https://github.com/TuSimple/tusimple-benchmark/issues/3]
+
+
+
 - unzip train_set.zip
 
 ```
@@ -23,8 +28,22 @@ dataset URL : [https://github.com/TuSimple/tusimple-benchmark/issues/3]
 |----label_data_0601.json
 |----test_label.json
 ```
+- transform for training
+  -   cfg.json : unzip Tusimple directory [origin_data]
+
+```shell
+python3 tusimple_transform.py
+```
+
+
+
+
+
 ## requirement ##
+
 - bash
+  - chmod +x requirement.sh
+
 
 ```shell
  ./requirement.sh
@@ -34,29 +53,40 @@ dataset URL : [https://github.com/TuSimple/tusimple-benchmark/issues/3]
 
 - lanenet + backbone[ENET]
 
-
 **how to train**
-> 1. TUSimple transform
+
+> cfg.json : train 
+>
+> -  dataset : TUSimple_dataset(transform) directory
+>
+> 1. train Lanenet
+>
 > ```shell
-> python3 tusimple_transform.py --data_set [unzip_tusimple]
+> python3 train.py 
 > ```
-> 2. train Lanenet
-> ```shell
-> python3 train.py --dataset [TUSimple_dataset(transform)]
-> ```
-> 3. check save directory [model.pth]
+> - you can change cfg_dir or save Directory
+>
+> 2. check save directory [model.pth]
+>
 > ```shell
 > cd ./save
 > ```
 >
 
 **how to eval**
-> 1. eval Lanenet
-> ```shell
-> python3 evel.py --dataset [TUSimple_dataset(transform)]
-> ```
-> 2. check result eval in prompt
+
+> cfg.json : eval
 >
+> - dataset : TUSimple_dataset(transform) directory
+>
+> 1. eval Lanenet
+>
+> ```shell
+> python3 evel.py
+> ```
+> - you can change cfg_dir or save Directory
+>
+> 2. check result eval in prompt
 
 **how to convert pth to onnx**
 > 1. torch to onnx
@@ -115,11 +145,14 @@ tensorrt 7.1.2.8
 hardware : RTX 2080Ti
 
 - Pytorch : 66 fps
-
 - TensorRT : 330 fps
 
-**recommend : use docker**
+
+
+**recommend : use docker(tested)**
 
 example for docker 
+
+
 
 docker run -it --gpus all -d -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --name trt20.06 nvcr.io/nvidia/tensorrt:20.06-py3 /bin/bash

@@ -61,7 +61,7 @@ def SaveLog(model, log, save_dir):
 
 def Train():
     DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    print("USING DEIVCE ",DEVICE)
+    print("USING DEIVCE : ", DEVICE)
     args = ParseArgs()
     cfg_json= OpenCFG(args.cfg_dir)
     dataloaders = {}

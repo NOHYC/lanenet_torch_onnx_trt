@@ -52,10 +52,8 @@ def TrainModel(model, optimizer, dataloaders, dataset_sizes, device, num_epochs=
 
 def Training(model,dataloaders,device,optimizer,dataset_sizes,training_log):
     model.train()
-    running_loss = 0.0
-    running_loss_b = 0.0
-    running_loss_i = 0.0
-    progressbar = tqdm(range(len(dataloaders)))
+    training_loss, training_loss_binary, training_loss_instance = 0.0 , 0.0 , 0.0
+    training_progressbar = tqdm(range(len(dataloaders)))
     for inputs, binarys, instances in dataloaders:
         
         inputs = inputs.type(torch.FloatTensor).to(device)
@@ -68,25 +66,25 @@ def Training(model,dataloaders,device,optimizer,dataset_sizes,training_log):
         loss[0].backward()
         optimizer.step()
         
-        running_loss += loss[0].item() * inputs.size(0)
-        running_loss_b += loss[1].item() * inputs.size(0)
-        running_loss_i += loss[2].item() * inputs.size(0)
-        progressbar.set_description("batch loss: {:.3f}".format(loss[0].item()))
-        progressbar.update(1)
-    progressbar.close()
-    epoch_loss = running_loss / dataset_sizes
-    binary_loss = running_loss_b / dataset_sizes
-    instance_loss = running_loss_i / dataset_sizes
+        training_loss += loss[0].item() * inputs.size(0)
+        training_loss_binary += loss[1].item() * inputs.size(0)
+        training_loss_instance += loss[2].item() * inputs.size(0)
+
+        training_progressbar.set_description("batch loss: {:.3f}".format(loss[0].item()))
+        training_progressbar.update(1)
+    training_progressbar.close()
+    epoch_loss = training_loss / dataset_sizes
+    binary_loss = training_loss_binary / dataset_sizes
+    instance_loss = training_loss_instance / dataset_sizes
     print('Train Total Loss: {:.4f} Binary Loss: {:.4f} Instance Loss: {:.4f}'.format(epoch_loss, binary_loss, instance_loss))
     training_log['training_loss'].append(epoch_loss)
     return model,training_log
 
 def Validation(best_loss,model,dataloaders,device,optimizer,dataset_sizes,training_log,best_model_wts):
     model.eval()
-    running_loss = 0.0
-    running_loss_b = 0.0
-    running_loss_i = 0.0
-    progressbar = tqdm(range(len(dataloaders)))
+    validation_loss, validation_loss_binary, validation_loss_instance = 0.0, 0.0, 0.0
+    validation_progressbar = tqdm(range(len(dataloaders)))
+
     for inputs, binarys, instances in dataloaders:
         inputs = inputs.type(torch.FloatTensor).to(device)
         binarys = binarys.type(torch.LongTensor).to(device)
@@ -95,15 +93,18 @@ def Validation(best_loss,model,dataloaders,device,optimizer,dataset_sizes,traini
         with torch.no_grad():
             outputs = model(inputs)
             loss = ComputeLoss(outputs, binarys, instances)
-        running_loss += loss[0].item() * inputs.size(0)
-        running_loss_b += loss[1].item() * inputs.size(0)
-        running_loss_i += loss[2].item() * inputs.size(0)
-        progressbar.set_description("batch loss: {:.3f}".format(loss[0].item()))
-        progressbar.update(1)
-    progressbar.close()
-    epoch_loss = running_loss / dataset_sizes
-    binary_loss = running_loss_b / dataset_sizes
-    instance_loss = running_loss_i / dataset_sizes
+        
+        validation_loss += loss[0].item() * inputs.size(0)
+        validation_loss_binary += loss[1].item() * inputs.size(0)
+        validation_loss_instance += loss[2].item() * inputs.size(0)
+
+        validation_progressbar.set_description("batch loss: {:.3f}".format(loss[0].item()))
+        validation_progressbar.update(1)
+        
+    validation_progressbar.close()
+    epoch_loss = validation_loss / dataset_sizes
+    binary_loss = validation_loss_binary / dataset_sizes
+    instance_loss = validation_loss_instance / dataset_sizes
     print('Validation Total Loss: {:.4f} Binary Loss: {:.4f} Instance Loss: {:.4f}'.format(epoch_loss, binary_loss, instance_loss))
     training_log['val_loss'].append(epoch_loss)
     if epoch_loss < best_loss:

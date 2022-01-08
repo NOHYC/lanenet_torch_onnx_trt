@@ -48,8 +48,6 @@ class BottleneckModule_Downsampling(nn.Module):
         maxp_branch = self.maxpool(x)
         bs, conv_ch, h, w = conv_branch.size()
         maxp_ch = maxp_branch.size()[1]
-        #padding = torch.zeros(bs, conv_ch - maxp_ch, h, w)
-        #maxp_branch = torch.cat([maxp_branch, padding], 1)
         padding = torch.zeros(bs, conv_ch - maxp_ch, h, w).to(DEVICE)
         maxp_branch = torch.cat([maxp_branch, padding], 1).to(DEVICE)
         output = maxp_branch + conv_branch
