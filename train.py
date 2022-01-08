@@ -25,22 +25,23 @@ def OpenCFG(cfg_dir):
         data_cfg = json.load(f)
         if data_cfg is not None:
             print("cfg load success")
-            return data_cfg["train"]
+            return data_cfg
         else :
             raise Exception("not load cfg file")
     
 
 def TrainDataLoader(data_type,cfg_json):
-    if data_type == "val" and cfg_json["validation"] == False:
-        return None
-    normalize, saturation, brightness, contrast, hue = cfg_json["transform"]["Normalize"], cfg_json["transform"]["saturation"], cfg_json["transform"]["brightness"], cfg_json["transform"]["contrast"], cfg_json["transform"]["hue"]
-    dataset_file = os.path.join(cfg_json["data_set"], data_type + ".txt")
-    data_trans = transforms.Compose([transforms.Resize((cfg_json["height"], cfg_json["width"])),
+    train_cfg = cfg_json["train"]
+    transform_cfg =  cfg_json["transform"] 
+    normalize, saturation, brightness, contrast, hue = transform_cfg["Normalize"], transform_cfg["saturation"], transform_cfg["brightness"], transform_cfg["contrast"],transform_cfg["hue"]
+    
+    dataset_file = os.path.join(train_cfg["dataset"], data_type + ".txt")
+    data_trans = transforms.Compose([transforms.Resize((train_cfg["height"], train_cfg["width"])),
             transforms.ColorJitter(brightness=brightness, contrast=contrast, saturation=saturation, hue=hue),transforms.ToTensor(),
             transforms.Normalize(normalize[0], normalize[1])])
-    target_transforms = transforms.Compose([Rescale((cfg_json["width"], cfg_json["height"]))])
+    target_transforms = transforms.Compose([Rescale((train_cfg["width"], train_cfg["height"]))])
     dataset = TusimpleSet(dataset_file, transform=data_trans, target_transform=target_transforms)
-    train_loader = DataLoader(dataset, batch_size=cfg_json["batch"], shuffle=True)
+    train_loader = DataLoader(dataset, batch_size=train_cfg["batch"], shuffle=True)
     return train_loader
 
 def SaveLog(model, log, save_dir):
@@ -60,18 +61,22 @@ def SaveLog(model, log, save_dir):
 
 def Train():
     DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    print("USING DEIVCE ",DEVICE)
     args = ParseArgs()
     cfg_json= OpenCFG(args.cfg_dir)
     dataloaders = {}
     dataset_sizes = {}
     for train_type in ["train", "val"]:
+        train_cfg = cfg_json["train"]
+        if train_type == "val" and train_cfg["validation"] == False:
+            continue
         dataloaders[train_type] = TrainDataLoader(train_type, cfg_json)
         dataset_sizes[train_type] = len(dataloaders[train_type].dataset)
     model = LaneNet()
     model.to(DEVICE)
-    optimizer = torch.optim.Adam(model.parameters(), lr=cfg_json.learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=cfg_json["train"]["learning_rate"])
 
-    model, log = TrainModel(model, optimizer, dataloaders=dataloaders, dataset_sizes=dataset_sizes, device=DEVICE, num_epochs=cfg_json["epochs"])
+    model, log = TrainModel(model, optimizer, dataloaders=dataloaders, dataset_sizes=dataset_sizes, device=DEVICE, num_epochs=cfg_json["train"]["epochs"])
     SaveLog(model, log, args.save)
 
 if __name__ == '__main__':

@@ -1,4 +1,9 @@
 {
+    "origin_data" :{
+        "raw" : "./data/trainin_data_example",
+        "val" : true,
+        "test" : false
+    },
     "train":{
         "dataset" : "./data/trainin_data_example",
         "epoch" : 25,

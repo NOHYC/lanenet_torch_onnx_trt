@@ -38,8 +38,10 @@ def TrainModel(model, optimizer, dataloaders, dataset_sizes, device, num_epochs=
         training_log['epoch'].append(epoch)
         print('Epoch {}/{}'.format(epoch, num_epochs - 1))
         print('-' * 10)
+        
         model, training_log = Training(model, dataloaders["train"], device, optimizer, dataset_sizes["train"], training_log)
-        model, training_log, best_model_wts = Validation(best_loss, model, dataloaders["val"], device, optimizer, dataset_sizes["val"], training_log, best_model_wts)
+        if len(dataloaders.keys()) == 2:
+            model, training_log, best_model_wts = Validation(best_loss, model, dataloaders["val"], device, optimizer, dataset_sizes["val"], training_log, best_model_wts)
     
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
