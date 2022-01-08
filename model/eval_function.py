@@ -11,7 +11,7 @@ def dice_coeff(pred, target):
  
     return (2. * intersection + smooth) / (m1.sum() + m2.sum() + smooth)
 
-class Eval_Score():
+class EvalScore():
     # IoU and F1(Dice)
 
     def __init__(self, y_pred, y_true, threshold = 0.5):

@@ -1,48 +1,49 @@
 import os
 import torch
-from model.lanenet.train_lanenet import train_model
+from model.lanenet.train_lanenet import TrainModel
 from dataloader.data_loaders import TusimpleSet
 from dataloader.transformers import Rescale
 from model.lanenet.LaneNet import LaneNet
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
-
+import json
 from torchvision import transforms
-
-from model.eval_function import Eval_Score
-
 import numpy as np
 import pandas as pd
 import cv2
 import argparse
 
-def parse_args():
+def ParseArgs():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset",required=True, help="Dataset path")
+    parser.add_argument("--cfg_dir", required=False,help="cfg Directory", default="./cfg/cfg.json" )
     parser.add_argument("--save", required=False, help="Directory to save model", default="./save")
-    parser.add_argument("--epochs", required=False, type=int, help="Training epochs", default=25)
-    parser.add_argument("--width", required=False, type=int, help="Resize width", default=512)
-    parser.add_argument("--height", required=False, type=int, help="Resize height", default=256)
-    parser.add_argument("--batch", required=False, type=int, help="Batch size", default=4)
-    parser.add_argument("--val", required=False, type=bool, help="Use validation", default=False)
-    parser.add_argument("--lr", required=False, type=float, help="Learning rate", default=0.0001)
     return parser.parse_args()
 
 
-DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-
-def data_loader(data_set,data_type,resize_height,resize_width,batch):
+def OpenCFG(cfg_dir):
+    with open(cfg_dir) as f:
+        data_cfg = json.load(f)
+        if data_cfg is not None:
+            print("cfg load success")
+            return data_cfg["train"]
+        else :
+            raise Exception("not load cfg file")
     
-    dataset_file = os.path.join(data_set, data_type + ".txt")
-    data_trans = transforms.Compose([transforms.Resize((resize_height, resize_width)),
-            transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])  ])
-    target_transforms = transforms.Compose([Rescale((resize_width, resize_height))])
+
+def TrainDataLoader(data_type,cfg_json):
+    if data_type == "val" and cfg_json["validation"] == False:
+        return None
+    normalize, saturation, brightness, contrast, hue = cfg_json["transform"]["Normalize"], cfg_json["transform"]["saturation"], cfg_json["transform"]["brightness"], cfg_json["transform"]["contrast"], cfg_json["transform"]["hue"]
+    dataset_file = os.path.join(cfg_json["data_set"], data_type + ".txt")
+    data_trans = transforms.Compose([transforms.Resize((cfg_json["height"], cfg_json["width"])),
+            transforms.ColorJitter(brightness=brightness, contrast=contrast, saturation=saturation, hue=hue),transforms.ToTensor(),
+            transforms.Normalize(normalize[0], normalize[1])])
+    target_transforms = transforms.Compose([Rescale((cfg_json["width"], cfg_json["height"]))])
     dataset = TusimpleSet(dataset_file, transform=data_trans, target_transform=target_transforms)
-    train_loader = DataLoader(dataset, batch_size=batch, shuffle=True)
+    train_loader = DataLoader(dataset, batch_size=cfg_json["batch"], shuffle=True)
     return train_loader
 
-def save_log(model, log, save_dir):
+def SaveLog(model, log, save_dir):
 
     df=pd.DataFrame({'epoch':[],'training_loss':[],'val_loss':[]})
     df['epoch'] = log['epoch']
@@ -57,23 +58,21 @@ def save_log(model, log, save_dir):
     torch.save(model.state_dict(), model_save_filename)
     print("model is saved: {}".format(model_save_filename))
 
-
-def train():
-    args = parse_args()
-
-    train_loader = data_loader(args.dataset,"train",args.height,args.width,args.batch)
-    val_loader = data_loader(args.dataset,"val",args.height,args.width,args.batch)
-    dataloaders = {'train' : train_loader, 'val' : val_loader}
-    dataset_sizes = {'train': len(train_loader.dataset), 'val' : len(val_loader.dataset)}
-
+def Train():
+    DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    args = ParseArgs()
+    cfg_json= OpenCFG(args.cfg_dir)
+    dataloaders = {}
+    dataset_sizes = {}
+    for train_type in ["train", "val"]:
+        dataloaders[train_type] = TrainDataLoader(train_type, cfg_json)
+        dataset_sizes[train_type] = len(dataloaders[train_type].dataset)
     model = LaneNet()
     model.to(DEVICE)
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=cfg_json.learning_rate)
 
-    model, log = train_model(model, optimizer, dataloaders=dataloaders, dataset_sizes=dataset_sizes, device=DEVICE, num_epochs=args.epochs)
-    save_log(model, log, args.save)
-
-
+    model, log = TrainModel(model, optimizer, dataloaders=dataloaders, dataset_sizes=dataset_sizes, device=DEVICE, num_epochs=cfg_json["epochs"])
+    SaveLog(model, log, args.save)
 
 if __name__ == '__main__':
-    train()
+    Train()
